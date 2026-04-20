@@ -50,11 +50,11 @@ Define the following models:
 ## Phase 3: The AI Worker & Pipeline (Background Processing)
 **Goal:** Implement the asynchronous processing that "reads" the labels.
 
-### 3.1 Worker Service
+### ✅ 3.1 Worker Service
 - Create a separate Node.js/TypeScript worker process.
 - Setup an SQS listener to pull `application_id` from the queue.
 
-### 3.2 Detection & Evaluation
+### ✅ 3.2 Detection & Evaluation
 - **Step 1 (Rekognition):** Call `DetectText` to get words and polygon coordinates. Store in `VerificationResult.raw_ocr_json`.
 - **Step 2 (Bedrock):** Send the image and the OCR text to Claude 3.5 Sonnet.
 - **The Lookup Pattern:** Claude must return a JSON object where each checklist item (e.g., "Net Contents") includes a `polygon_id` mapping to the Rekognition data.
@@ -65,7 +65,7 @@ Define the following models:
 ## Phase 4: The Verification Wizard (Human-in-the-Loop)
 **Goal:** The high-speed interface for workers to approve or reject.
 
-### 4.1 Split-Screen Layout (`/verify/:id`)
+### ✅ 4.1 Split-Screen Layout (`/verify/:id`)
 - **Left (Checklist):** Progressive disclosure of requirements (Brand Name -> Alcohol Content -> etc.).
 - **Right (Viewer):** Interactive image viewer.
 - **Keyboard Shortcuts:**
@@ -73,7 +73,7 @@ Define the following models:
     - `m`: Modify/Fail (auto-focuses comment box)
     - `Left/Right Arrows`: Navigate steps.
 
-### 4.2 Auto-Zoom & Highlighting
+### ✅ 4.2 Auto-Zoom & Highlighting
 - When a checklist item is active, use the `polygon_id` from the DB to draw a `BoundingBox` overlay on the image.
 - Trigger a smooth pan/zoom animation to center the highlighted text in the viewer.
 
