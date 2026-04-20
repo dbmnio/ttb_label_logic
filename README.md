@@ -53,3 +53,20 @@ The application will be available at [http://localhost:3000](http://localhost:30
 npm run worker
 ```
 The worker will begin polling the SQS queue and processing submitted applications using Rekognition and Bedrock.
+
+## Design Decisions and tradeoffs
+
+- **Background Processing for Responsive UI:** Since real-time requirements apply only during application verification, heavy AI and OCR processing happens in the background. This ensures the UI remains fast and responsive while a worker navigates the verification checklist.
+
+- **Polling for page updates:** Rather than have error prone web sockets for
+this MVP, the web page automatically updates the status of the processing state of an application by checking for updates from the backend on a set time interval.
+
+
+## 🔮 Future Plans
+
+*The goal is to recreate the manual worker experience (having the TTB application, label images, and manual checklist open simultaneously on a desk) directly within the web application.*
+
+- **Automated Checklists & Pre-filling:** We aim to parse mandatory label checklists for malt beverages, distilled spirits, and wine to construct accurate UI representations. Deterministic string matching and semantic AI reasoning will be used to pre-fill fields where possible. Workers can easily review, accept, or edit these pre-filled fields to significantly expedite the process.
+- **Side-by-Side Comparison:** The extracted text and the submitted label images will be placed in close proximity to facilitate quick visual comparisons.
+- **Intelligent Queue Sorting:** The system will offer queue sorting by beverage type, days since submission, and AI-determined difficulty. This allows workers to specialize by beverage type or quickly clear "low-hanging fruit" applications.
+- **Integration with TTB Data:** Beverage types and country codes will be pulled directly from ttb.gov to provide more precise context and responses for the checklist items.
