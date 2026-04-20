@@ -1,26 +1,11 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { SendMessageCommand } from '@aws-sdk/client-sqs'
 import { v4 as uuidv4 } from 'uuid'
 import { AlcoholType, LabelType } from '@prisma/client'
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dummy'
-  }
-})
-
-const sqs = new SQSClient({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dummy'
-  }
-})
+import { s3Client, sqsClient, SQS_QUEUE_URL } from '@/worker/config'
 
 async function uploadToS3(file: File, ttbId: string, type: LabelType) {
   const arrayBuffer = await file.arrayBuffer()
@@ -29,8 +14,13 @@ async function uploadToS3(file: File, ttbId: string, type: LabelType) {
   const ext = file.name.split('.').pop() || 'jpg'
   const key = `labels/${ttbId}/${type}-${uuidv4()}.${ext}`
 
-  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== 'dummy') {
-    await s3.send(new PutObjectCommand({
+  // In local development, you might be using AWS SSO, `~/.aws/credentials`, or aws-vault, 
+  // so we shouldn't rely on AWS_ACCESS_KEY_ID to determine if we are mocking.
+  // Instead, we will only mock if explicitly told to via an environment variable.
+  const isMock = process.env.MOCK_AWS === 'true'
+
+  if (!isMock) {
+    await s3Client.send(new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME || 'ttb-labels-dev',
       Key: `${process.env.S3_BUCKET_PREFIX || ''}${key}`,
       Body: buffer,
@@ -74,9 +64,11 @@ export async function submitApplication(formData: FormData) {
     }
   })
 
-  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== 'dummy') {
-    await sqs.send(new SendMessageCommand({
-      QueueUrl: process.env.SQS_QUEUE_URL || '',
+  const isMock = process.env.MOCK_AWS === 'true'
+
+  if (!isMock) {
+    await sqsClient.send(new SendMessageCommand({
+      QueueUrl: SQS_QUEUE_URL || '',
       MessageBody: JSON.stringify({ applicationId: application.id })
     }))
   } else {

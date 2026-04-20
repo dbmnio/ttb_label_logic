@@ -47,8 +47,15 @@ async function processMessage(messageBody: string) {
     // 3. AWS Rekognition (OCR)
     const textDetections = await detectTextFromS3(S3_BUCKET, `${S3_BUCKET_PREFIX}${s3Key}`);
 
-    // 4. AWS Bedrock (Claude 3.5 Sonnet)
-    const checklistResult = await evaluateLabelWithClaude(imageBytes, textDetections, application.alcohol_type);
+    // 4. AWS Bedrock (Claude / Nova)
+    const extension = s3Key.split('.').pop()?.toLowerCase() || 'jpeg';
+    let imageFormat: "png" | "jpeg" | "gif" | "webp" = "jpeg";
+    if (extension === "png") imageFormat = "png";
+    if (extension === "gif") imageFormat = "gif";
+    if (extension === "webp") imageFormat = "webp";
+    if (extension === "jpg") imageFormat = "jpeg";
+
+    const checklistResult = await evaluateLabelWithClaude(imageBytes, textDetections, application.alcohol_type, imageFormat);
 
     // 5. Store Verification Result and set to READY
     await prisma.verificationResult.create({

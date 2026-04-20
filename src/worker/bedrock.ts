@@ -8,7 +8,8 @@ const MODEL_ID = "amazon.nova-pro-v1:0";
 export async function evaluateLabelWithClaude(
   imageBytes: Uint8Array,
   textDetections: TextDetection[],
-  alcoholType: string
+  alcoholType: string,
+  imageFormat: "png" | "jpeg" | "gif" | "webp" = "jpeg"
 ) {
   // Format the Rekognition output to something Claude can read easily
   const ocrData = textDetections.map((detection) => ({
@@ -41,7 +42,7 @@ Return ONLY valid JSON.`;
         content: [
           {
             image: {
-              format: "png", // or "jpeg" depending on the file, let's assume Claude handles auto-detect or we can pass a generic format. Claude supports jpeg, png, gif, webp.
+              format: imageFormat,
               source: {
                 bytes: imageBytes,
               },
