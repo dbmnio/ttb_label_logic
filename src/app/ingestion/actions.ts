@@ -67,8 +67,8 @@ export async function submitApplication(formData: FormData) {
       alcohol_type: alcoholType,
       images: {
         create: [
-          { type: 'FRONT', s3_key: frontKey },
-          ...(backKey ? [{ type: 'BACK', s3_key: backKey }] : [])
+          { type: 'FRONT' as const, s3_key: frontKey },
+          ...(backKey ? [{ type: 'BACK' as const, s3_key: backKey }] : [])
         ]
       }
     }

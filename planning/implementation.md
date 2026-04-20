@@ -5,8 +5,8 @@ This document serves as a step-by-step implementation guide for an AI coding age
 ## Technical Constraints & Standards
 - **Framework:** Next.js (App Router), TypeScript.
 - **Styling:** Tailwind CSS + ShadCN UI, adhering to **USWDS (U.S. Web Design System)** (see `@planning/style.md`).
-- **Database:** PostgreSQL via Prisma ORM. No mock data; all states must persist.
-- **Async Pipeline:** AWS SQS, AWS Rekognition (OCR), AWS Bedrock (Claude 3.5 Sonnet).
+- **Database:** PostgreSQL via Prisma ORM 7. No mock data; all states must persist. Uses `@prisma/adapter-pg` for explicit driver configuration.
+- **Async Pipeline:** AWS SQS, AWS Rekognition (OCR), AWS Bedrock (Claude 3.5 Sonnet via Inference Profiles).
 - **Architecture:** Decoupled Web Server and Worker service (see `@planning/architecture.md`).
 
 ---
@@ -22,11 +22,11 @@ This document serves as a step-by-step implementation guide for an AI coding age
     - Success: `#00a91c`
     - Warning: `#ffbe2e`
     - Error: `#d83933`
-- Install Prisma and initialize PostgreSQL connection.
+- Install Prisma 7, `@prisma/adapter-pg`, and `pg`. Connect to RDS PostgreSQL using strict SSL certificates.
 
 ### ✅ 1.2 Data Modeling (Prisma Schema)
 Define the following models:
-- **`Application`**: `id`, `ttb_id`, `brand_name`, `alcohol_type` (Enum), `status` (Enum: PENDING, PROCESSING, READY, PROCESSED), `user_id` (lock), `locked_at`.
+- **`Application`**: `id`, `ttb_id`, `brand_name`, `alcohol_type` (Enum), `status` (Enum: PENDING, PROCESSING, READY, PROCESSED, REJECTED), `rejection_reason` (string), `user_id` (lock), `locked_at`.
 - **`LabelImage`**: `id`, `application_id`, `s3_key`, `type` (FRONT, BACK).
 - **`VerificationResult`**: `id`, `application_id`, `checklist_json` (Stores the structured output from Claude), `raw_ocr_json` (Stores Rekognition output).
 
@@ -51,12 +51,12 @@ Define the following models:
 **Goal:** Implement the asynchronous processing that "reads" the labels.
 
 ### ✅ 3.1 Worker Service
-- Create a separate Node.js/TypeScript worker process.
+- Create a separate Node.js/TypeScript worker process (`npm run worker`).
 - Setup an SQS listener to pull `application_id` from the queue.
 
 ### ✅ 3.2 Detection & Evaluation
 - **Step 1 (Rekognition):** Call `DetectText` to get words and polygon coordinates. Store in `VerificationResult.raw_ocr_json`.
-- **Step 2 (Bedrock):** Send the image and the OCR text to Claude 3.5 Sonnet.
+- **Step 2 (Bedrock):** Send the image and the OCR text to Claude 3.5 Sonnet using the AWS Bedrock Inference Profile `us.anthropic.claude-sonnet-4-6`.
 - **The Lookup Pattern:** Claude must return a JSON object where each checklist item (e.g., "Net Contents") includes a `polygon_id` mapping to the Rekognition data.
 - **Update:** Set `Application.status` to `READY` when complete.
 
@@ -66,8 +66,8 @@ Define the following models:
 **Goal:** The high-speed interface for workers to approve or reject.
 
 ### ✅ 4.1 Split-Screen Layout (`/verify/:id`)
-- **Left (Checklist):** Progressive disclosure of requirements (Brand Name -> Alcohol Content -> etc.).
-- **Right (Viewer):** Interactive image viewer.
+- **Left (Checklist):** Progressive disclosure of requirements (Brand Name -> Alcohol Content -> etc.). Scroll boundaries enforced so the submit button is always visible.
+- **Right (Viewer):** Interactive image viewer. Utilizes S3 Pre-signed URLs for secure private bucket access.
 - **Keyboard Shortcuts:**
     - `a`: Accept/Pass
     - `m`: Modify/Fail (auto-focuses comment box)
@@ -83,13 +83,14 @@ Define the following models:
 **Goal:** Finalize decisions and handle high-volume data.
 
 ### ✅ 5.1 Bulk Ingestion
-- Implement `.zip` upload handler.
+- Implement `.zip` upload handler (`/bulk-ingestion`).
 - Parse `records.csv` and validate image existence before triggering the background pipeline.
 
-### ✅ 5.2 PDF Generation (`/processed`)
+### ✅ 5.2 PDF Generation (`/api/pdf/[id]`)
 - Use `pdf-lib` to generate the final TTB record.
-- Burn the worker's name, timestamp, and "Approved/Rejected" stamps into the "FOR TTB USE ONLY" boxes of the original PDF template.
+- Burn the worker's name, timestamp, and "APPROVED/REJECTED" stamps into the "FOR TTB USE ONLY" boxes of the original PDF template. If rejected, prints the explicit rejection reason on the PDF.
 
 ### ✅ 5.3 History & Audit Trail
 - Implement a read-only `/history` table.
-- Ensure all historical decisions are searchable by `ttb_id` or `brand_name`.
+- Track both `PROCESSED` and `REJECTED` applications.
+- Ensure all historical decisions are searchable by `ttb_id` or `brand_name` and display rejection reasons.
