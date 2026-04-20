@@ -82,14 +82,14 @@ Define the following models:
 ## Phase 5: Artifacts, Bulk Ingestion & Audit
 **Goal:** Finalize decisions and handle high-volume data.
 
-### 5.1 Bulk Ingestion
+### ✅ 5.1 Bulk Ingestion
 - Implement `.zip` upload handler.
 - Parse `records.csv` and validate image existence before triggering the background pipeline.
 
-### 5.2 PDF Generation (`/processed`)
+### ✅ 5.2 PDF Generation (`/processed`)
 - Use `pdf-lib` to generate the final TTB record.
 - Burn the worker's name, timestamp, and "Approved/Rejected" stamps into the "FOR TTB USE ONLY" boxes of the original PDF template.
 
-### 5.3 History & Audit Trail
+### ✅ 5.3 History & Audit Trail
 - Implement a read-only `/history` table.
 - Ensure all historical decisions are searchable by `ttb_id` or `brand_name`.
