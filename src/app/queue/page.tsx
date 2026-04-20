@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertTriangle } from 'lucide-react'
 import { lockAndSelectApplication } from './actions'
 import Link from 'next/link'
 
@@ -55,12 +57,23 @@ export default async function QueuePage(props: PageProps) {
             <CardContent>
               <p><strong>Type:</strong> {app.alcohol_type.replace('_', ' ')}</p>
               <p><strong>Status:</strong> <span className="font-semibold text-primary">{app.status}</span></p>
-              {app.user_id && <p className="text-warning text-sm mt-2">Locked by {app.user_id}</p>}
+              {app.user_id && (
+                <Alert variant="destructive" className="mt-4 py-2">
+                  <AlertTriangle className="h-4 w-4 mt-0" />
+                  <AlertDescription>
+                    Warning: User {app.user_id} is currently working on this.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
             <CardFooter>
               <form action={lockAndSelectApplication.bind(null, app.id)} className="w-full">
-                <Button type="submit" className="w-full bg-primary hover:bg-navy">
-                  {app.status === 'READY' ? 'Verify Label (Ready)' : 'Select for Review'}
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-navy"
+                  disabled={app.status !== 'READY'}
+                >
+                  {app.status === 'READY' ? 'Verify Label (Ready)' : 'Processing...'}
                 </Button>
               </form>
             </CardFooter>

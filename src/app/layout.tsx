@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NextAuthProvider } from "@/components/auth-provider";
 import { AuthButton } from "@/components/auth-button";
 import Link from "next/link";
 import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,11 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col font-sans">
         <NextAuthProvider>
           <header className="flex items-center justify-between p-4 border-b bg-white shrink-0 z-50 h-16">
             <Link href="/">

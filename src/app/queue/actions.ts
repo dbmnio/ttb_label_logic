@@ -18,6 +18,10 @@ export async function lockAndSelectApplication(applicationId: string) {
         throw new Error('Application not found')
       }
 
+      if (app.status !== 'READY') {
+        throw new Error('Application is not ready for verification')
+      }
+
       if (app.user_id && app.user_id !== currentUserId) {
         // Check if lock expired (e.g. lock expires after 30 mins)
         const lockExpired = app.locked_at && (new Date().getTime() - app.locked_at.getTime() > 30 * 60 * 1000)
@@ -32,7 +36,7 @@ export async function lockAndSelectApplication(applicationId: string) {
         data: {
           user_id: currentUserId,
           locked_at: new Date(),
-          status: app.status === 'PENDING' ? 'PROCESSING' : app.status // Maintain READY if it was processed by AI
+          status: app.status // It must be READY based on the check above
         }
       })
     })

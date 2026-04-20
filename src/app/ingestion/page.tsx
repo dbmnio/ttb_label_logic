@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -65,14 +67,16 @@ export default function IngestionPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="frontLabel">Front Label Image</Label>
+              <Label htmlFor="frontLabel">Label Image</Label>
               <Input id="frontLabel" name="frontLabel" type="file" accept="image/*" required />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="backLabel">Back Label Image (Optional)</Label>
-              <Input id="backLabel" name="backLabel" type="file" accept="image/*" />
-            </div>
+            <Alert>
+              <Info className="h-4 w-4 mt-0.5" />
+              <AlertDescription>
+                Currently, only one image is supported per submission. If you have multiple images (like a front and back label), please combine them into a single image file before uploading.
+              </AlertDescription>
+            </Alert>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full bg-primary" disabled={loading}>

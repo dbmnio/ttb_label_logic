@@ -23,6 +23,22 @@ export default async function VerifyPage(props: PageProps) {
     notFound()
   }
 
+  if (application.status !== 'READY') {
+    return (
+      <div className="flex-1 w-full flex flex-col items-center justify-center p-10 bg-background">
+        <div className="text-center space-y-4 max-w-md">
+          <h2 className="text-2xl font-bold">Application Not Ready</h2>
+          <p className="text-muted-foreground">
+            This application is currently in the {application.status} state. It cannot be verified until automated processing is complete.
+          </p>
+          <a href="/queue" className="text-primary hover:underline">
+            Return to Queue
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   // For this prototype, we'll assume the front image is the one we want to verify.
   const frontImage = application.images.find(img => img.type === 'FRONT') || application.images[0]
   
