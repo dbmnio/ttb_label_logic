@@ -5,8 +5,26 @@ import { detectTextFromS3 } from "./rekognition";
 import { evaluateLabelWithClaude } from "./bedrock";
 import { prisma } from "../lib/prisma";
 
+import * as http from "http";
+
 const S3_BUCKET = process.env.S3_BUCKET_NAME || "ttb-label-images";
 const S3_BUCKET_PREFIX = process.env.S3_BUCKET_PREFIX || "";
+
+// Simple HTTP server for ECS health checks
+const server = http.createServer((req, res) => {
+  if (req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("OK");
+  } else {
+    res.writeHead(404);
+    res.end("Not Found");
+  }
+});
+
+const HEALTH_PORT = process.env.PORT || 8080;
+server.listen(HEALTH_PORT, () => {
+  console.log(`Health check server listening on port ${HEALTH_PORT}`);
+});
 
 async function processMessage(messageBody: string) {
   const payload = JSON.parse(messageBody);
