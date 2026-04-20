@@ -32,7 +32,7 @@ async function uploadToS3(file: File, ttbId: string, type: LabelType) {
   if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== 'dummy') {
     await s3.send(new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME || 'ttb-labels-dev',
-      Key: key,
+      Key: `${process.env.S3_BUCKET_PREFIX || ''}${key}`,
       Body: buffer,
       ContentType: file.type
     }))

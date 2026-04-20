@@ -2,7 +2,8 @@ import { ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { bedrockClient } from "./config";
 import { TextDetection } from "@aws-sdk/client-rekognition";
 
-const MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0";
+//const MODEL_ID = "us.anthropic.claude-sonnet-4-6";
+const MODEL_ID = "amazon.nova-pro-v1:0";
 
 export async function evaluateLabelWithClaude(
   imageBytes: Uint8Array,

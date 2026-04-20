@@ -6,6 +6,7 @@ import { evaluateLabelWithClaude } from "./bedrock";
 import { prisma } from "../lib/prisma";
 
 const S3_BUCKET = process.env.S3_BUCKET_NAME || "ttb-label-images";
+const S3_BUCKET_PREFIX = process.env.S3_BUCKET_PREFIX || "";
 
 async function processMessage(messageBody: string) {
   const payload = JSON.parse(messageBody);
@@ -41,10 +42,10 @@ async function processMessage(messageBody: string) {
 
   try {
     // 2. Fetch Image from S3
-    const imageBytes = await getImageBytesFromS3(S3_BUCKET, s3Key);
+    const imageBytes = await getImageBytesFromS3(S3_BUCKET, `${S3_BUCKET_PREFIX}${s3Key}`);
 
     // 3. AWS Rekognition (OCR)
-    const textDetections = await detectTextFromS3(S3_BUCKET, s3Key);
+    const textDetections = await detectTextFromS3(S3_BUCKET, `${S3_BUCKET_PREFIX}${s3Key}`);
 
     // 4. AWS Bedrock (Claude 3.5 Sonnet)
     const checklistResult = await evaluateLabelWithClaude(imageBytes, textDetections, application.alcohol_type);

@@ -46,7 +46,7 @@ export default async function VerifyPage(props: PageProps) {
       <main className="flex-1 overflow-hidden">
         <VerificationWizard
           applicationId={application.id}
-          imageUrl={`https://${process.env.S3_BUCKET_NAME || 'ttb-label-images'}.s3.amazonaws.com/${frontImage?.s3_key}`}
+          imageUrl={`https://${process.env.S3_BUCKET_NAME || 'ttb-label-images'}.s3.amazonaws.com/${process.env.S3_BUCKET_PREFIX || ''}${frontImage?.s3_key}`}
           checklistData={checklistData as any}
           rawOcrData={rawOcrData as any}
         />

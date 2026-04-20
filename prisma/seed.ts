@@ -26,7 +26,7 @@ async function main() {
         create: [
           {
             type: 'FRONT',
-            s3_key: 'mock/front-label.jpg'
+            s3_key: 'bourbon.jpg'
           }
         ]
       },
