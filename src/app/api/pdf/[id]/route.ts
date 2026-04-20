@@ -79,6 +79,16 @@ export async function GET(
       font: timesRomanFont,
     })
 
+    if (application.status === 'REJECTED' && application.rejection_reason) {
+      page.drawText(`Reason: ${application.rejection_reason}`, {
+        x: 70,
+        y: stampY - 50,
+        size: 10,
+        font: timesRomanFont,
+        color: rgb(0.8, 0, 0),
+      })
+    }
+
     // In a real system, you'd fetch the image bytes from S3 and embed it here:
     // const imageBytes = await getImageBytesFromS3(...)
     // const image = await pdfDoc.embedJpg(imageBytes)

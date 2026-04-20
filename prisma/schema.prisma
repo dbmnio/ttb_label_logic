@@ -18,6 +18,7 @@ enum ApplicationStatus {
   PROCESSING
   READY
   PROCESSED
+  REJECTED
 }
 
 enum LabelType {
@@ -31,6 +32,7 @@ model Application {
   brand_name   String
   alcohol_type AlcoholType
   status       ApplicationStatus @default(PENDING)
+  rejection_reason String?       // Store reason if rejected
   user_id      String?           // For concurrency lock
   locked_at    DateTime?
   created_at   DateTime          @default(now())

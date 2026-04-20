@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { FileText } from 'lucide-react'
 import Link from 'next/link'
 
@@ -24,7 +25,7 @@ export default async function HistoryPage(props: PageProps) {
   // For now, let's just query everything and let them search
   const applications = await prisma.application.findMany({
     where: {
-      status: 'PROCESSED',
+      status: { in: ['PROCESSED', 'REJECTED'] },
       OR: [
         { ttb_id: { contains: query, mode: 'insensitive' } },
         { brand_name: { contains: query, mode: 'insensitive' } },
@@ -57,14 +58,16 @@ export default async function HistoryPage(props: PageProps) {
               <TableHead>TTB ID</TableHead>
               <TableHead>Brand Name</TableHead>
               <TableHead>Alcohol Type</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Processed At</TableHead>
+              <TableHead>Reason</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {applications.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No records found.
                 </TableCell>
               </TableRow>
@@ -74,7 +77,15 @@ export default async function HistoryPage(props: PageProps) {
                   <TableCell className="font-medium">{app.ttb_id}</TableCell>
                   <TableCell>{app.brand_name}</TableCell>
                   <TableCell>{app.alcohol_type.replace('_', ' ')}</TableCell>
+                  <TableCell>
+                    <Badge variant={app.status === 'PROCESSED' ? 'default' : 'destructive'} className={app.status === 'PROCESSED' ? 'bg-success' : ''}>
+                      {app.status === 'PROCESSED' ? 'APPROVED' : app.status}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{new Date(app.updated_at).toLocaleString()}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate" title={app.rejection_reason || ''}>
+                    {app.rejection_reason || '-'}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/api/pdf/${app.id}`} target="_blank">
                       <Button variant="outline" size="sm" className="gap-2">

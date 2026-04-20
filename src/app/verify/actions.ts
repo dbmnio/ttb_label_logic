@@ -17,11 +17,11 @@ export async function approveApplication(id: string) {
 }
 
 export async function rejectApplication(id: string, reason: string) {
-  // In a real system, you might save the rejection reason to a comment history
   await prisma.application.update({
     where: { id },
     data: {
-      status: 'PENDING', // send back to start or a separate REJECTED state
+      status: 'REJECTED',
+      rejection_reason: reason,
       user_id: null,
       locked_at: null
     }
