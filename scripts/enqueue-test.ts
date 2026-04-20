@@ -15,7 +15,7 @@ const pool = new Pool({
   connectionString,
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync('/Users/dave/.local/ssh/global-bundle.pem').toString(),
+    ca: fs.readFileSync(path.join(process.cwd(), 'certs', 'global-bundle.pem')).toString(),
   },
 })
 const adapter = new PrismaPg(pool)

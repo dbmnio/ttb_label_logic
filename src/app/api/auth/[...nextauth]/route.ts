@@ -15,6 +15,7 @@ const handler = NextAuth({
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {
+        // @ts-expect-error - NextAuth types do not include id by default
         session.user.id = token.sub
       }
       return session
