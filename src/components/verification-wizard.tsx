@@ -158,7 +158,8 @@ export default function VerificationWizard({
           </div>
         </div>
 
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full p-4">
           <div className="space-y-4">
             {checklistKeys.map((key, index) => {
               const item = checklistData[key]
@@ -212,7 +213,8 @@ export default function VerificationWizard({
               )
             })}
           </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
 
         {/* Footer actions */}
         <div className="p-4 border-t bg-slate-50">
