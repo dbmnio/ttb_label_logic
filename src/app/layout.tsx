@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NextAuthProvider } from "@/components/auth-provider";
 import { AuthButton } from "@/components/auth-button";
+import Link from "next/link";
+import { Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +34,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NextAuthProvider>
-          <header className="absolute top-0 right-0 p-4 z-50">
+          <header className="flex items-center justify-between p-4 border-b bg-white shrink-0 z-50 h-16">
+            <Link href="/">
+              <Button variant="ghost" size="icon">
+                <Home className="h-5 w-5" />
+              </Button>
+            </Link>
             <AuthButton />
           </header>
-          {children}
+          <main className="flex-1 flex flex-col">
+            {children}
+          </main>
         </NextAuthProvider>
       </body>
     </html>

@@ -18,11 +18,6 @@ export default function Home() {
               Submit New Label
             </Button>
           </Link>
-          <Link href="/bulk-ingestion" className="w-full sm:w-auto">
-            <Button size="lg" variant="secondary" className="w-full text-lg h-14 px-8">
-              Bulk Ingestion (.zip)
-            </Button>
-          </Link>
           <Link href="/queue" className="w-full sm:w-auto">
             <Button size="lg" variant="outline" className="w-full text-lg h-14 px-8">
               View Verification Queue

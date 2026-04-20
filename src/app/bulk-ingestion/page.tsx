@@ -58,9 +58,6 @@ export default function BulkIngestionPage() {
     <div className="container mx-auto py-10 max-w-2xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Bulk Ingestion</h1>
-        <Link href="/">
-          <Button variant="outline">Back to Home</Button>
-        </Link>
       </div>
       
       <Card>
