@@ -2,10 +2,19 @@
 
 import { prisma } from '@/lib/prisma'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
 import { v4 as uuidv4 } from 'uuid'
 import { AlcoholType, LabelType } from '@prisma/client'
 
 const s3 = new S3Client({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dummy'
+  }
+})
+
+const sqs = new SQSClient({
   region: process.env.AWS_REGION || 'us-east-1',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
@@ -64,6 +73,15 @@ export async function submitApplication(formData: FormData) {
       }
     }
   })
+
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== 'dummy') {
+    await sqs.send(new SendMessageCommand({
+      QueueUrl: process.env.SQS_QUEUE_URL || '',
+      MessageBody: JSON.stringify({ applicationId: application.id })
+    }))
+  } else {
+    console.log(`[Mock SQS] Sent message for applicationId ${application.id}`)
+  }
 
   return { success: true, applicationId: application.id }
 }
